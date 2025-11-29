@@ -40,6 +40,13 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: 'Alerts',
@@ -51,15 +58,6 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="admin"
-        options={{
-          title: 'Admin',
-          tabBarIcon: ({ color }) => <TabBarIcon name="shield" color={color} />,
-          // Only show admin tab if user is admin
-          href: profile?.is_admin ? '/(tabs)/admin' : null,
         }}
       />
     </Tabs>

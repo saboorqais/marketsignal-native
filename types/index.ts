@@ -1,10 +1,28 @@
+export type ConditionType = 
+  | 'price_above'
+  | 'price_below'
+  | 'price_cross_above'
+  | 'price_cross_below'
+  | 'rsi_above'
+  | 'rsi_below'
+  | 'rsi_cross_above'
+  | 'rsi_cross_below'
+
 export interface Alert {
   id: string
   user_id: string
+  title: string
+  asset_type: 'crypto' | 'stock' | 'forex'
   symbol: string
-  condition_type: 'rsi_above' | 'rsi_below' | 'price_above' | 'price_below'
+  condition_type: ConditionType
   condition_value: number
+  notification_email: boolean
+  notification_telegram: boolean
   is_active: boolean
+  triggered_at: string | null
+  metadata: {
+    timeframe: '1m' | '15m' | '1h' | '1d'
+  }
   created_at: string
   updated_at: string
 }
