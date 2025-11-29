@@ -1,0 +1,22 @@
+# Market Signal Mobile - Environment Variables
+# Copy this file to .env and fill in your Supabase credentials
+
+# Supabase Configuration
+# Get these from: https://app.supabase.com/project/_/settings/api
+
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+
+# ⚠️ SECURITY WARNING ⚠️
+# 
+# ✅ DO use: SUPABASE_ANON_KEY (safe for mobile apps)
+# ❌ DON'T use: SUPABASE_SERVICE_ROLE_KEY (dangerous!)
+#
+# The Service Role key bypasses all Row Level Security (RLS) policies.
+# If extracted from your app bundle, it would compromise your entire database.
+#
+# For admin operations:
+# - Create Supabase Edge Functions that use Service Role server-side
+# - Mobile app calls these functions with user authentication
+# - Server validates permissions before executing privileged operations
+
