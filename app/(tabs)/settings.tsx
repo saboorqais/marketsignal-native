@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '@/lib/auth-context'
 import { supabase } from '@/lib/supabase'
 import { useStore } from '@/lib/store'
 import { router } from 'expo-router'
 import { colors } from '@/constants/colors'
+import { 
+  registerForPushNotifications, 
+  unregisterPushNotifications,
+  scheduleTestNotification 
+} from '@/lib/notifications'
 
 export default function SettingsScreen() {
   const { user, signOut } = useAuth()
   const { profile, setProfile } = useStore()
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [telegramNotifications, setTelegramNotifications] = useState(false)
+  const [pushNotifications, setPushNotifications] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -31,6 +38,7 @@ export default function SettingsScreen() {
         setProfile(data)
         setEmailNotifications(data.email_notifications ?? true)
         setTelegramNotifications(data.telegram_notifications ?? false)
+        setPushNotifications(data.push_notification_enabled ?? false)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -63,6 +71,33 @@ export default function SettingsScreen() {
   const handleTelegramToggle = (value: boolean) => {
     setTelegramNotifications(value)
     updateNotificationSetting('telegram_notifications', value)
+  }
+
+  const handlePushToggle = async (value: boolean) => {
+    setLoading(true)
+    setPushNotifications(value)
+    
+    try {
+      if (value) {
+        const success = await registerForPushNotifications(user?.id!)
+        if (success) {
+          await fetchProfile() // Refresh profile
+          Alert.alert('Success', 'Push notifications enabled! You will now receive instant alerts.')
+        } else {
+          setPushNotifications(false)
+          Alert.alert('Error', 'Failed to enable push notifications. Please check your device settings.')
+        }
+      } else {
+        await unregisterPushNotifications(user?.id!)
+        await fetchProfile()
+        Alert.alert('Disabled', 'Push notifications have been disabled.')
+      }
+    } catch (error) {
+      setPushNotifications(!value)
+      Alert.alert('Error', 'An error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSignOut = async () => {
@@ -160,8 +195,42 @@ export default function SettingsScreen() {
                 disabled={loading}
               />
             </View>
+            
+            <View style={styles.divider} />
+            
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingTitle}>Push Notifications</Text>
+                <Text style={styles.settingDescription}>
+                  Receive instant alerts on your device
+                </Text>
+              </View>
+              <Switch
+                value={pushNotifications}
+                onValueChange={handlePushToggle}
+                trackColor={{ false: colors.textTertiary, true: colors.blue }}
+                thumbColor={colors.textPrimary}
+                disabled={loading}
+              />
+            </View>
           </View>
         </View>
+
+        {/* Test Notification (Development Only) */}
+        {__DEV__ && pushNotifications && (
+          <View style={styles.section}>
+            <TouchableOpacity 
+              style={styles.testButton}
+              onPress={() => {
+                scheduleTestNotification()
+                Alert.alert('Scheduled', 'Test notification will appear in 2 seconds')
+              }}
+            >
+              <Ionicons name="notifications-outline" size={20} color={colors.blue} />
+              <Text style={styles.testButtonText}>Send Test Notification</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Actions Section */}
         <View style={styles.section}>
@@ -278,6 +347,22 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: colors.textTertiary,
+  },
+  testButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.blue + '20',
+    borderRadius: 12,
+    padding: 16,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.blue + '40',
+  },
+  testButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.blue,
   },
 })
 

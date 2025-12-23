@@ -15,7 +15,10 @@ module.exports = {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.marketsignal.mobile'
+      bundleIdentifier: 'com.marketsignal.mobile',
+      infoPlist: {
+        UIBackgroundModes: ['remote-notification'],
+      },
     },
     android: {
       adaptiveIcon: {
@@ -31,8 +34,22 @@ module.exports = {
     },
     plugins: [
       'expo-router',
-      'expo-secure-store'
+      'expo-secure-store',
+      [
+        'expo-notifications',
+        {
+          icon: './assets/images/icon.png',
+          color: '#3B82F6',
+          defaultChannel: 'default',
+        },
+      ],
     ],
+    notification: {
+      icon: './assets/images/icon.png',
+      color: '#3B82F6',
+      androidMode: 'default',
+      androidCollapsedTitle: 'Market Signal',
+    },
     experiments: {
       typedRoutes: true
     },

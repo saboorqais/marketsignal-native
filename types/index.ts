@@ -35,7 +35,9 @@ export interface Profile {
   email_notifications: boolean
   telegram_notifications: boolean
   telegram_chat_id: string | null
-  push_token: string | null
+  push_notification_enabled: boolean
+  device_tokens: string[]
+  last_push_token: string | null
   created_at: string
 }
 

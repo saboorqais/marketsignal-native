@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { Session, User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { registerForPushNotifications } from './notifications'
 
 interface AuthContextType {
   session: Session | null
@@ -40,8 +41,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    
+    // Register for push notifications after successful sign in
+    if (data.user) {
+      setTimeout(() => {
+        registerForPushNotifications(data.user.id).catch(err => {
+          console.warn('Failed to register for push notifications:', err)
+        })
+      }, 2000) // Small delay to let app fully load
+    }
   }
 
   const signUp = async (email: string, password: string, fullName: string) => {
